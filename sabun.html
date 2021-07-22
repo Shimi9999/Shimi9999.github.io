@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>obj:STANK! 差分ページ</title>
+  <meta http-equiv="Content-Script-Type" content="text/javascript" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta name="bmstable" content="table/header.json" /> <!--　読み込む難易度表のヘッダファイルをここに指定　-->
+  <link href="style.css" rel="stylesheet" type="text/css"/>
+  <link href="table/style/style.css?wivgugf" rel="stylesheet" type="text/css" />
+  <script src="table/style/jquery-2.0.2.min.js"></script>
+</head>
+
+<body class="diff">
+
+  <h1>obj:STANK! 差分ページ</h1>
+
+  <!--　　　　　ここから難易度表本体　　　　　-->
+  <div class="tableflame">
+    <table cellspacing="1" cellpadding=2 id="table_int">
+    </table>
+  </div>
+
+  <a href="./index.html">back</a>
+
+  <script language="javascript" type="text/javascript">
+
+  $(document).ready(function(){
+    $.getJSON($("meta[name=bmstable]").attr("content"), function(header){
+      $.getJSON(header.data_url, function(information){
+        makeBMSTable(information);
+      });
+    });
+  });
+
+  // ソートのための引数追加
+  function makeBMSTable(info) {  
+    var count = 0;
+    var obj = $("#table_int");
+    
+    // 表のクリア
+    obj.html("");
+    $("<tr height='20' style='color:white;background-color:#666666'><td align='center'>タイトル</td><td align='center'>本体</td><td align='center'>差分</td><td align='center'>レベル</td><td align='center'>コメント</td></tr>").appendTo(obj);
+    for (var i = 0; i < info.length; i++) {
+      // 本文
+      var str = $("<tr class='tr_normal'></tr>");
+
+      // タイトル
+      $("<td width='16%'>" + info[i].title + "</td>").appendTo(str);
+      // アーティスト
+      var astr = "";
+      if(info[i].url != "" && info[i].url != null) {
+        if(info[i].artist != "" && info[i].artist != null) {
+          astr = "<a href='" + info[i].url + "' target='_blank'>" + info[i].artist + "</a>";
+        } else {
+          astr = "<a href='" + info[i].url + "' target='_blank'>" + info[i].url + "</a>";
+        }
+      } else {
+        if(info[i].artist != "" && info[i].artist != null) {
+          astr = info[i].artist;
+        }
+      }
+      $("<td width='16%'>" + astr + "</td>").appendTo(str);
+      // 差分
+      var sabuntitle = sabunlevel = "";
+      for (var si = 0; si < info[i].scores.length; si++) {
+        if (si > 0) {
+          sabuntitle += "<br>";
+          sabunlevel += "<br>";
+        }
+        sabuntitle += /(\[.+\])/.exec(info[i].scores[si])[1];
+        sabunlevel += /\[.+\](.+)/.exec(info[i].scores[si])[1];
+      }
+      $("<td width='3%'><a href='" + info[i].url_diff + "' target='_blank'>" + sabuntitle + "</a></td>").appendTo(str);
+      // レベル
+      $("<td width='3%'>" + sabunlevel + "</td>").appendTo(str);
+      // コメント
+      $("<td width='14%'>" + info[i].comment + "</td>").appendTo(str);
+
+      str.appendTo(obj);
+      count++;
+    }
+  }
+  </script>
+
+</body>
+</html>
